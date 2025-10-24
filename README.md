@@ -1,317 +1,243 @@
-# AgriTrace: Blockchain-based Supply Chain for Small Farmers
+# 🌾 AgriTrace: Blockchain-based Supply Chain for Small Farmers
 
-A comprehensive decentralized application built on the Stacks blockchain that ensures transparency, authenticity, and fair compensation across the agricultural supply chain.
+[![Stacks](https://img.shields.io/badge/Built%20on-Stacks-5546FF?style=for-the-badge&logo=stacks)](https://stacks.co)
+[![Clarity](https://img.shields.io/badge/Smart%20Contracts-Clarity-orange?style=for-the-badge)](https://clarity-lang.org)
+[![Next.js](https://img.shields.io/badge/Frontend-Next.js-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-## 🌟 Features
+> **A complete decentralized application ensuring transparency, authenticity, and fair compensation across agricultural supply chains using the Stacks blockchain.**
 
-- **Farmer Registration & Verification**: Secure on-chain farmer profiles with government/NGO verification
-- **Product Batch Tracking**: Immutable tracking from farm to consumer with complete history
-- **STX Escrow Payments**: Secure payments that release automatically upon delivery confirmation
-- **QR Code Traceability**: Generate QR codes for instant product verification
-- **Real-time Dashboard**: Monitor supply chain activities and statistics
-- **Mobile-Responsive UI**: Works seamlessly on desktop and mobile devices
+## 🎯 **Live Demo**
 
-## 🏗️ Architecture
+- **Frontend**: http://localhost:3000 (after setup)
+- **Backend API**: http://localhost:3001 (after setup)
+- **Testnet Explorer**: [View on Stacks Explorer](https://explorer.stacks.co/?chain=testnet)
+
+## ✨ **Key Features**
+
+### 🌱 **For Farmers**
+- **Verified Registration**: Government/NGO verification system
+- **Fair Pricing**: Transparent market rates with STX escrow
+- **Direct Sales**: Connect directly with buyers
+- **Reputation System**: Build trust through blockchain verification
+
+### 🛒 **For Buyers**
+- **Complete Transparency**: Full supply chain visibility
+- **Quality Assurance**: Verified farmer credentials
+- **Secure Payments**: STX escrow with automatic release
+- **Authenticity Guarantee**: Blockchain-verified products
+
+### 📱 **For Consumers**
+- **QR Code Scanning**: Instant product verification
+- **Supply Chain History**: Track from farm to table
+- **Food Safety**: Contamination tracking and recalls
+- **Quality Information**: Detailed farmer and product data
+
+## 🏗️ **Architecture**
 
 ### Smart Contracts (Clarity)
-- **farmer-registry.clar**: Manages farmer registration and verification
-- **product-tracking.clar**: Tracks product batches through supply chain stages
-- **payment-escrow.clar**: Handles secure STX payments between buyers and farmers
+```
+contracts/
+├── farmer-registry.clar     # Farmer registration & verification
+├── product-tracking.clar    # Supply chain tracking & events
+└── payment-escrow.clar      # STX escrow payments
+```
 
-### Backend (Node.js/Express)
-- REST API interfacing with Stacks blockchain
-- Hiro API integration for blockchain queries
-- QR code generation for product traceability
-- Real-time transaction monitoring
+### Backend API (Node.js/Express)
+```
+backend/
+├── server.js               # Express server with Stacks integration
+├── package.json           # Dependencies & scripts
+└── .env.example          # Environment configuration
+```
 
 ### Frontend (Next.js/React)
-- Stacks.js wallet integration
-- Responsive dashboard with Tailwind CSS
-- Real-time blockchain data visualization
-- Mobile-compatible interface
+```
+frontend/
+├── pages/                 # Application pages
+├── components/           # Reusable UI components
+├── contexts/            # React contexts (Stacks integration)
+└── styles/             # Tailwind CSS styling
+```
 
-## 🚀 Quick Start
+## 🚀 **Quick Start**
 
 ### Prerequisites
-- Node.js 18+
-- Clarinet CLI
-- Stacks Wallet browser extension
+- **Node.js 18+**
+- **Clarinet CLI** ([Installation Guide](https://docs.hiro.so/clarinet))
+- **Stacks Wallet** ([Browser Extension](https://wallet.hiro.so/))
 
-### Installation
-
-1. **Clone and setup the project:**
+### 1. Clone Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/SharmARohitt/agri-trace.git
 cd agri-trace
 ```
 
-2. **Install Clarinet dependencies:**
+### 2. Install Dependencies
 ```bash
-cd agri-trace
-npm install
+# Install all dependencies
+npm run install:all
+
+# Or install individually
+npm install                    # Root dependencies
+cd backend && npm install      # Backend dependencies  
+cd ../frontend && npm install  # Frontend dependencies
 ```
 
-3. **Install backend dependencies:**
+### 3. Environment Setup
 ```bash
-cd backend
-npm install
-```
-
-4. **Install frontend dependencies:**
-```bash
-cd ../frontend
-npm install
-```
-
-### Development Setup
-
-1. **Start Clarinet development environment:**
-```bash
-cd agri-trace
-clarinet integrate
-```
-
-2. **Run contract tests:**
-```bash
-npm test
-```
-
-3. **Start backend API server:**
-```bash
-cd backend
+# Copy environment files
 cp .env.example .env
-# Edit .env with your configuration
-npm run dev
+cp backend/.env.example backend/.env
 ```
 
-4. **Start frontend development server:**
+### 4. Start Development
 ```bash
-cd ../frontend
-npm run dev
+# Terminal 1: Smart Contracts
+clarinet console
+
+# Terminal 2: Backend API
+cd backend && npm run dev
+
+# Terminal 3: Frontend
+cd frontend && npm run dev
 ```
 
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
+### 5. Access Application
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:3001
+- **API Health**: http://localhost:3001/health
 
-## 📋 Contract Testing
+## 🧪 **Testing**
 
-### Run Clarinet Tests
+### Smart Contract Testing
 ```bash
-cd agri-trace
-clarinet check  # Check contract syntax
-npm test        # Run all tests
+# Check contract syntax
+clarinet check
+
+# Run interactive console
+clarinet console
+
+# Test contract functions
+(contract-call? .farmer-registry register-farmer "John Doe" "California")
+(contract-call? .product-tracking record-batch "BATCH-001" "Tomatoes" u100 "kg" u500 "A" u1000 u2000 "Farm")
 ```
 
-### Test Individual Contracts
+### Integration Testing
 ```bash
-# Test farmer registry
-clarinet test tests/farmer-registry.test.ts
+# Test deployed contracts
+npm run test:contracts
 
-# Test product tracking
-clarinet test tests/product-tracking.test.ts
-
-# Test payment escrow
-clarinet test tests/payment-escrow.test.ts
+# Test API endpoints
+curl http://localhost:3001/health
+curl http://localhost:3001/api/config
 ```
 
-## 🌐 Testnet Deployment
+## 🌐 **Deployment**
 
-### 1. Setup Environment
+### Testnet Deployment
 ```bash
-# Set your deployer private key
-export DEPLOYER_PRIVATE_KEY="your-private-key-here"
-export STACKS_NETWORK="testnet"
+# Get testnet STX from faucet
+# https://explorer.stacks.co/sandbox/faucet?chain=testnet
+
+# Set your private key
+export DEPLOYER_PRIVATE_KEY="your-private-key"
+
+# Deploy contracts
+npm run deploy:testnet
 ```
 
-### 2. Fund Your Testnet Wallet
-Visit the [Stacks Testnet Faucet](https://explorer.stacks.co/sandbox/faucet?chain=testnet) to get test STX.
-
-### 3. Deploy Contracts
+### Production Deployment
 ```bash
-cd agri-trace
-node scripts/deploy.js
+# Deploy to mainnet
+export STACKS_NETWORK=mainnet
+export DEPLOYER_PRIVATE_KEY="your-mainnet-private-key"
+npm run deploy:testnet
 ```
 
-### 4. Update Configuration
-After deployment, update your `.env` files with the deployed contract addresses:
+## 📊 **Project Status**
 
-```bash
-# Backend .env
-FARMER_REGISTRY_CONTRACT=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.farmer-registry
-PRODUCT_TRACKING_CONTRACT=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.product-tracking
-PAYMENT_ESCROW_CONTRACT=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.payment-escrow
-```
+### ✅ **Completed Features**
+- [x] Smart contract development and testing
+- [x] Farmer registration and verification system
+- [x] Product batch tracking with immutable history
+- [x] STX escrow payments with automatic release
+- [x] QR code generation for product traceability
+- [x] Responsive web interface with wallet integration
+- [x] Real-time blockchain data synchronization
+- [x] Complete API documentation
 
-### 5. Test Deployed Contracts
-```bash
-export TEST_PRIVATE_KEY="your-test-private-key"
-export CONTRACT_ADDRESS="your-deployed-contract-address"
-node scripts/test-contracts.js
-```
+### 🚧 **Roadmap**
+- [ ] Mobile application (React Native)
+- [ ] IPFS integration for large data storage
+- [ ] Multi-language support
+- [ ] Advanced analytics dashboard
+- [ ] Integration with existing ERP systems
+- [ ] IoT sensor data integration
 
-## 📖 API Documentation
+## 🛠️ **Technology Stack**
 
-### Farmer Endpoints
-- `GET /api/farmers/:address` - Get farmer details
-- `GET /api/farmers/:address/stats` - Get farmer statistics
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Blockchain** | Stacks | Bitcoin-secured smart contracts |
+| **Smart Contracts** | Clarity | Secure, predictable contract logic |
+| **Backend** | Node.js + Express | API server and blockchain integration |
+| **Frontend** | Next.js + React | Modern web application |
+| **Styling** | Tailwind CSS | Responsive, utility-first CSS |
+| **Wallet** | Stacks.js | Blockchain wallet integration |
+| **Testing** | Clarinet + Vitest | Contract and integration testing |
 
-### Product Batch Endpoints
-- `GET /api/batches/:batchId` - Get batch details
-- `GET /api/batches/:batchId/history` - Get batch supply chain history
-- `GET /api/batches/:batchId/qr` - Generate QR code for batch
+## 📖 **Documentation**
 
-### Escrow Endpoints
-- `GET /api/escrows/:escrowId` - Get escrow details
+- **[Setup Guide](DEPLOYMENT.md)** - Complete deployment instructions
+- **[Project Summary](PROJECT_SUMMARY.md)** - Detailed project overview
+- **[Test Results](TEST_RESULTS.md)** - Testing documentation
+- **[Running Status](RUNNING_STATUS.md)** - Current application status
 
-### Utility Endpoints
-- `GET /api/transactions/:txId` - Get transaction status
-- `GET /api/accounts/:address/balance` - Get account STX balance
-- `GET /api/config` - Get network and contract configuration
+## 🤝 **Contributing**
 
-## 🔄 User Journey Examples
+We welcome contributions! Please follow these steps:
 
-### 1. Farmer Registration
-```javascript
-// Frontend: Connect wallet and register
-const registerFarmer = async () => {
-  const txOptions = {
-    contractAddress: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-    contractName: 'farmer-registry',
-    functionName: 'register-farmer',
-    functionArgs: [
-      stringAsciiCV('John Doe'),
-      stringAsciiCV('California')
-    ]
-  };
-  
-  const transaction = await openContractCall(txOptions);
-};
-```
-
-### 2. Product Batch Creation
-```javascript
-// Record new product batch
-const recordBatch = async () => {
-  const txOptions = {
-    contractAddress: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-    contractName: 'product-tracking',
-    functionName: 'record-batch',
-    functionArgs: [
-      stringAsciiCV('BATCH-001'),
-      stringAsciiCV('Organic Tomatoes'),
-      uintCV(100), // quantity
-      stringAsciiCV('kg'),
-      uintCV(500), // price per unit
-      stringAsciiCV('A'), // quality grade
-      uintCV(Date.now()), // harvest date
-      uintCV(Date.now() + 86400000), // expiry date
-      stringAsciiCV('Farm Location')
-    ]
-  };
-  
-  const transaction = await openContractCall(txOptions);
-};
-```
-
-### 3. Escrow Payment
-```javascript
-// Create escrow for purchase
-const createEscrow = async () => {
-  const txOptions = {
-    contractAddress: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-    contractName: 'payment-escrow',
-    functionName: 'create-escrow',
-    functionArgs: [
-      stringAsciiCV('ESCROW-001'),
-      stringAsciiCV('BATCH-001'),
-      principalCV('ST1FARMER...'), // farmer address
-      uintCV(50000), // amount in microSTX
-      uintCV(Math.floor(Date.now() / 1000) + 86400) // deadline
-    ]
-  };
-  
-  const transaction = await openContractCall(txOptions);
-};
-```
-
-## 🔍 Blockchain Verification
-
-All transactions and data can be verified on the Stacks blockchain:
-
-- **Testnet Explorer**: https://explorer.stacks.co/?chain=testnet
-- **Mainnet Explorer**: https://explorer.stacks.co/
-
-### Verify Contract Calls
-1. Copy transaction ID from the application
-2. Paste into Stacks Explorer
-3. View transaction details and contract call results
-
-### Verify Contract State
-Use read-only functions to verify current state:
-```bash
-# Check farmer registration
-curl -X POST "https://stacks-node-api.testnet.stacks.co/v2/contracts/call-read/ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM/farmer-registry/get-farmer" \
-  -H "Content-Type: application/json" \
-  -d '{"sender":"ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM","arguments":["\"ST1FARMER...\""]}'
-```
-
-## 🛠️ Development Commands
-
-```bash
-# Contract development
-clarinet check                    # Check contract syntax
-clarinet test                     # Run all tests
-clarinet console                  # Interactive REPL
-clarinet integrate               # Start development environment
-
-# Backend development
-npm run dev                      # Start development server
-npm test                         # Run API tests
-npm start                        # Start production server
-
-# Frontend development
-npm run dev                      # Start development server
-npm run build                    # Build for production
-npm run start                    # Start production server
-npm run lint                     # Run ESLint
-```
-
-## 🔐 Security Considerations
-
-- **Private Keys**: Never commit private keys to version control
-- **Environment Variables**: Use `.env` files for sensitive configuration
-- **Input Validation**: All user inputs are validated on-chain
-- **Access Control**: Functions have appropriate authorization checks
-- **Escrow Safety**: Payments are locked until delivery confirmation
-
-## 🤝 Contributing
-
+### Development Workflow
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite
-6. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📄 License
+## 📄 **License**
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🙏 **Acknowledgments**
 
-- **Documentation**: Check this README and inline code comments
-- **Issues**: Report bugs and request features via GitHub Issues
-- **Community**: Join the Stacks community for blockchain-specific questions
+- **Stacks Foundation** for the blockchain infrastructure
+- **Hiro Systems** for development tools and APIs
+- **Clarity Language** for secure smart contract development
+- **Open Source Community** for the amazing tools and libraries
 
-## 🔗 Resources
+## 📞 **Support**
 
-- [Clarity Language Guide](https://book.clarity-lang.org)
-- [Clarinet Documentation](https://docs.hiro.so/stacks/clarinet)
-- [Stacks.js Documentation](https://docs.hiro.so/stacks/stacks.js)
-- [Hiro API Documentation](https://docs.hiro.so/stacks)
-- [Stacks Blockchain Explorer](https://explorer.stacks.co)
+- **Issues**: [GitHub Issues](https://github.com/SharmARohitt/agri-trace/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/SharmARohitt/agri-trace/discussions)
+
+## 🌟 **Screenshots**
+
+### Dashboard
+![Dashboard](docs/images/dashboard.png)
+
+### Farmer Registration
+![Farmer Registration](docs/images/farmer-registration.png)
+
+### Supply Chain Tracking
+![Supply Chain Tracking](docs/images/supply-chain-tracking.png)
 
 ---
 
-Built with ❤️ for transparent and fair agricultural supply chains.
+<div align="center">
+
+**Built with ❤️ for transparent and fair agricultural supply chains**
+
+[🌾 View Demo](http://localhost:3000) • [📚 Documentation](DEPLOYMENT.md) • [🐛 Report Bug](https://github.com/SharmARohitt/agri-trace/issues) • [✨ Request Feature](https://github.com/SharmARohitt/agri-trace/issues)
+
+</div>

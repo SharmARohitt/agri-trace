@@ -1,0 +1,44 @@
+[network]
+name = "testnet"
+node_rpc_address = "https://stacks-node-api.testnet.stacks.co"
+deployment_fee_rate = 10
+
+[accounts.deployer]
+mnemonic = "twice kind fence tip hidden tilt action fragile skin nothing glory cousin green tomorrow spring wrist shed math olympic multiply hip blue scout claw"
+balance = 100_000_000_000_000
+
+[accounts.wallet_1]
+mnemonic = "sell invite acquire kitten bamboo drastic jelly vivid peace spawn twice guilt pave pen trash pretty park cube fragile unaware remain midnight betray rebuild"
+balance = 100_000_000_000_000
+
+[accounts.wallet_2]
+mnemonic = "hold excess usual excess ring elephant install account glad dry fragile donkey gaze humble truck breeze nation gasp vacuum limb head keep delay hospital"
+balance = 100_000_000_000_000
+
+[accounts.wallet_3]
+mnemonic = "cycle puppy glare enroll cost improve round trend wrist mushroom scorpion tower claim oppose clever elephant dinosaur eight problem before frozen dune wagon high"
+balance = 100_000_000_000_000
+
+[accounts.wallet_4]
+mnemonic = "board list obtain sugar hour worth raven scout denial thunder horse logic fury scorpion fold genuine phrase wealth news aim below celery when cabin"
+balance = 100_000_000_000_000
+
+[accounts.wallet_5]
+mnemonic = "anchor border career harbor second one swap spiral bind forest fire wrap hammer lift siege night green tomato sauce cart erase acid leaf brick"
+balance = 100_000_000_000_000
+
+[accounts.wallet_6]
+mnemonic = "lazy panel flee dog current patch boy trade consult current place aspect solution acquaint practice member fantastic unreasonable frog alert snapshot bird account opening"
+balance = 100_000_000_000_000
+
+[accounts.wallet_7]
+mnemonic = "spare decline dog trend share cannon health warfare next clap broom nest pull swap ground coffee button require somewhere level print water sailor cruel"
+balance = 100_000_000_000_000
+
+[accounts.wallet_8]
+mnemonic = "capture prevent to mouth absorb remember dip basic weird line cruel charge caution recall drift spend note cash pilot scatter state upset about abuse"
+balance = 100_000_000_000_000
+
+[accounts.wallet_9]
+mnemonic = "patient open fair cactus yellow gap pocket damage scoring cradle silver loud again one unique warfare tuition pulse prevent simple cloth parent alert finish"
+balance = 100_000_000_000_000

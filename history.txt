@@ -1,0 +1,12 @@
+#V2
+(contract-call? .farmer-registry register-farmer "John Doe" "California")
+;; Test farmer registration
+(contract-call? .farmer-registry register-farmer "John Doe" "California")
+;; Test getting farmer details
+(contract-call? .farmer-registry get-farmer 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
+;; Test product batch recording
+(contract-call? .product-tracking record-batch "BATCH-001" "Organic Tomatoes" u100 "kg" u500 "A" u1000 u2000 "Farm Location")
+;; Test getting batch details
+(contract-call? .product-tracking get-batch "BATCH-001")
+;; Test escrow creation
+(contract-call? .payment-escrow create-escrow "ESCROW-001" "BATCH-001" 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5 u50000 u1000)

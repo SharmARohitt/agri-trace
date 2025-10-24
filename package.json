@@ -1,0 +1,38 @@
+{
+  "name": "agri-trace",
+  "version": "1.0.0",
+  "description": "Blockchain-based Supply Chain for Small Farmers",
+  "scripts": {
+    "test": "clarinet test",
+    "check": "clarinet check",
+    "console": "clarinet console",
+    "integrate": "clarinet integrate",
+    "deploy:testnet": "node scripts/deploy.js",
+    "test:contracts": "node scripts/test-contracts.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build:frontend": "cd frontend && npm run build",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start"
+  },
+  "devDependencies": {
+    "@hirosystems/clarinet-sdk": "^2.3.2",
+    "@stacks/transactions": "^6.13.0",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {
+    "@stacks/network": "^6.13.0",
+    "dotenv": "^16.3.1"
+  },
+  "keywords": [
+    "blockchain",
+    "stacks",
+    "agriculture",
+    "supply-chain",
+    "clarity",
+    "smart-contracts"
+  ],
+  "author": "AgriTrace Team",
+  "license": "MIT"
+}

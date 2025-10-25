@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import { useStacks } from '../../contexts/StacksContext'
-import { Package, MapPin, Calendar, Star, Filter } from 'lucide-react'
+import { Package, MapPin, Calendar, Star, Filter, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 
 
@@ -19,65 +19,109 @@ export default function Products() {
     fetchProducts()
   }, [filter])
 
+  // Refresh products when component mounts or when coming back to page
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchProducts()
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      // Mock data - in production, this would fetch from the backend
-      const mockProducts = [
-        {
-          batchId: 'BATCH-001',
-          productType: 'Organic Tomatoes',
-          quantity: 100,
-          unit: 'kg',
-          farmer: 'Green Valley Organics',
-          farmerAddress: 'ST1FARMER1...',
-          region: 'California',
-          status: 'produced',
-          statusText: 'Harvested',
-          pricePerUnit: 5.50,
-          qualityGrade: 'A',
-          harvestDate: '2024-01-15',
-          expiryDate: '2024-01-25',
-          verified: true,
-          currentLocation: 'Farm Storage'
-        },
-        {
-          batchId: 'BATCH-002',
-          productType: 'Wheat',
-          quantity: 500,
-          unit: 'kg',
-          farmer: 'Sunrise Wheat Farm',
-          farmerAddress: 'ST1FARMER2...',
-          region: 'Kansas',
-          status: 'transported',
-          statusText: 'In Transit',
-          pricePerUnit: 2.25,
-          qualityGrade: 'B',
-          harvestDate: '2024-01-10',
-          expiryDate: '2024-06-10',
-          verified: true,
-          currentLocation: 'Distribution Center'
-        },
-        {
-          batchId: 'BATCH-003',
-          productType: 'Alpine Vegetables',
-          quantity: 75,
-          unit: 'kg',
-          farmer: 'Mountain Fresh Produce',
-          farmerAddress: 'ST1FARMER3...',
-          region: 'Colorado',
-          status: 'stored',
-          statusText: 'In Storage',
-          pricePerUnit: 7.80,
-          qualityGrade: 'A',
-          harvestDate: '2024-01-12',
-          expiryDate: '2024-01-22',
-          verified: false,
-          currentLocation: 'Warehouse A'
-        }
-      ]
       
-      let filteredProducts = [...mockProducts]
+      // Fetch products from backend API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/batches?${new URLSearchParams({
+        status: filter.status,
+        productType: filter.productType,
+        sortBy: filter.sortBy
+      })}`)
+      
+      let products = []
+      
+      if (response.ok) {
+        const data = await response.json()
+        products = data.products || []
+      } else {
+        // Fallback to mock data if API fails
+        products = [
+          {
+            batchId: 'BATCH-001',
+            productType: 'Organic Tomatoes',
+            quantity: 100,
+            unit: 'kg',
+            farmer: 'Rohit Sharma',
+            farmerAddress: 'STS1D1ZNN1D0MKS62RCPMF5Z9RG9BREMC6MZ5R72',
+            region: 'Delhi',
+            status: 'available',
+            statusText: 'Available',
+            pricePerUnit: 5.50,
+            qualityGrade: 'A',
+            harvestDate: '2024-01-15',
+            expiryDate: '2024-01-25',
+            verified: false,
+            currentLocation: 'Farm Storage'
+          },
+          {
+            batchId: 'BATCH-002',
+            productType: 'Premium Wheat',
+            quantity: 500,
+            unit: 'kg',
+            farmer: 'Rohit Sharma',
+            farmerAddress: 'STS1D1ZNN1D0MKS62RCPMF5Z9RG9BREMC6MZ5R72',
+            region: 'Delhi',
+            status: 'available',
+            statusText: 'Available',
+            pricePerUnit: 2.25,
+            qualityGrade: 'A',
+            harvestDate: '2024-01-10',
+            expiryDate: '2024-06-10',
+            verified: false,
+            currentLocation: 'Farm Storage'
+          },
+          {
+            batchId: 'BATCH-003',
+            productType: 'Fresh Carrots',
+            quantity: 75,
+            unit: 'kg',
+            farmer: 'Rohit Sharma',
+            farmerAddress: 'STS1D1ZNN1D0MKS62RCPMF5Z9RG9BREMC6MZ5R72',
+            region: 'Delhi',
+            status: 'available',
+            statusText: 'Available',
+            pricePerUnit: 3.80,
+            qualityGrade: 'A',
+            harvestDate: '2024-01-12',
+            expiryDate: '2024-02-12',
+            verified: false,
+            currentLocation: 'Farm Storage'
+          }
+        ]
+      }
+      
+      // Convert API format to products page format
+      const formattedProducts = products.map(product => ({
+        batchId: product.batchId,
+        productType: product.productType,
+        quantity: product.quantity,
+        unit: product.unit,
+        farmer: product.farmer?.name || product.farmer,
+        farmerAddress: product.farmer?.id || product.farmerAddress,
+        region: product.farmer?.region || product.region,
+        status: product.status || 'produced',
+        statusText: product.status === 'available' ? 'Available' : 'Harvested',
+        pricePerUnit: product.pricePerUnit,
+        qualityGrade: product.qualityGrade,
+        harvestDate: product.harvestDate,
+        expiryDate: product.expiryDate,
+        verified: product.farmer?.verified || false,
+        currentLocation: product.location || 'Farm Storage'
+      }))
+      
+      let filteredProducts = [...formattedProducts]
       
       if (filter.status !== 'all') {
         filteredProducts = filteredProducts.filter(p => p.status === filter.status)
@@ -133,11 +177,21 @@ export default function Products() {
             </p>
           </div>
           
-          {isSignedIn && (
-            <Link href="/products/create" className="btn-primary">
-              Add Product Batch
-            </Link>
-          )}
+          <div className="flex space-x-3">
+            <button
+              onClick={fetchProducts}
+              disabled={loading}
+              className="btn-outline flex items-center space-x-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+            {isSignedIn && (
+              <Link href="/products/create" className="btn-primary">
+                Add Product Batch
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Filters */}

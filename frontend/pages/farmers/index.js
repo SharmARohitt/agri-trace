@@ -1,24 +1,42 @@
 import { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import { useStacks } from '../../contexts/StacksContext'
-import { Users, MapPin, Shield, Star } from 'lucide-react'
+import { Users, MapPin, Shield, Star, RefreshCw, Search } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Farmers() {
-  const { isSignedIn } = useStacks()
+  const { isSignedIn, network } = useStacks()
   const [farmers, setFarmers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [filter, setFilter] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     fetchFarmers()
-  }, [filter])
+  }, [filter, searchTerm])
 
   const fetchFarmers = async () => {
     try {
       setLoading(true)
-      // Mock data - in production, this would fetch from the backend
+      
+      // In production, this would fetch from your backend API which queries the blockchain
+      // For now, we'll use enhanced mock data that simulates real blockchain data
       const mockFarmers = [
+        {
+          id: 'STS1D1ZNN1D0MKS62RCPMF5Z9RG9BREMC6MZ5R72',
+          name: 'Rohit Sharma',
+          region: 'Delhi',
+          verified: false,
+          totalBatches: 0,
+          totalRevenue: 0,
+          reputationScore: 100,
+          specialties: ['New Farmer'],
+          joinDate: new Date().toISOString().split('T')[0],
+          walletAddress: 'STS1D1ZNN1D0MKS62RCPMF5Z9RG9BREMC6MZ5R72',
+          registrationBlock: 12345,
+          isOnline: true
+        },
         {
           id: 'ST1FARMER1...',
           name: 'Green Valley Organics',
@@ -28,7 +46,10 @@ export default function Farmers() {
           totalRevenue: 125000,
           reputationScore: 95,
           specialties: ['Organic Vegetables', 'Fruits'],
-          joinDate: '2024-01-15'
+          joinDate: '2024-01-15',
+          walletAddress: 'ST1FARMER1...',
+          registrationBlock: 11000,
+          isOnline: true
         },
         {
           id: 'ST1FARMER2...',
@@ -39,7 +60,10 @@ export default function Farmers() {
           totalRevenue: 89000,
           reputationScore: 88,
           specialties: ['Wheat', 'Corn'],
-          joinDate: '2024-02-20'
+          joinDate: '2024-02-20',
+          walletAddress: 'ST1FARMER2...',
+          registrationBlock: 11500,
+          isOnline: false
         },
         {
           id: 'ST1FARMER3...',
@@ -50,19 +74,68 @@ export default function Farmers() {
           totalRevenue: 34000,
           reputationScore: 78,
           specialties: ['Alpine Vegetables'],
-          joinDate: '2024-03-10'
+          joinDate: '2024-03-10',
+          walletAddress: 'ST1FARMER3...',
+          registrationBlock: 12000,
+          isOnline: true
         }
       ]
       
-      const filteredFarmers = filter === 'verified' 
-        ? mockFarmers.filter(f => f.verified)
-        : mockFarmers
+      let filteredFarmers = [...mockFarmers]
+      
+      // Apply filters
+      if (filter === 'verified') {
+        filteredFarmers = filteredFarmers.filter(f => f.verified)
+      } else if (filter === 'new') {
+        const oneWeekAgo = new Date()
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+        filteredFarmers = filteredFarmers.filter(f => new Date(f.joinDate) > oneWeekAgo)
+      }
+      
+      // Apply search
+      if (searchTerm) {
+        filteredFarmers = filteredFarmers.filter(f =>
+          f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          f.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          f.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
+        )
+      }
+      
+      // Sort by join date (newest first)
+      filteredFarmers.sort((a, b) => new Date(b.joinDate) - new Date(a.joinDate))
         
       setFarmers(filteredFarmers)
     } catch (error) {
       console.error('Error fetching farmers:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const refreshFarmers = async () => {
+    setRefreshing(true)
+    await fetchFarmers()
+    setRefreshing(false)
+  }
+
+  const checkFarmerOnBlockchain = async (farmerId) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_STACKS_API_URL}/v2/contracts/call-read/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/farmer-registry/get-farmer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: farmerId,
+          arguments: [`"${farmerId}"`]
+        })
+      })
+      
+      const data = await response.json()
+      return data.result !== '(none)'
+    } catch (error) {
+      console.error('Error checking farmer on blockchain:', error)
+      return false
     }
   }
 
@@ -78,35 +151,72 @@ export default function Farmers() {
             </p>
           </div>
           
-          {isSignedIn && (
-            <Link href="/farmers/register" className="btn-primary">
-              Register as Farmer
-            </Link>
-          )}
+          <div className="flex space-x-3">
+            <button
+              onClick={refreshFarmers}
+              disabled={refreshing}
+              className="btn-outline flex items-center space-x-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+            {isSignedIn && (
+              <Link href="/farmers/register" className="btn-primary">
+                Register as Farmer
+              </Link>
+            )}
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex space-x-4">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              filter === 'all' 
-                ? 'bg-primary-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            All Farmers
-          </button>
-          <button
-            onClick={() => setFilter('verified')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              filter === 'verified' 
-                ? 'bg-primary-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Verified Only
-          </button>
+        {/* Search and Filters */}
+        <div className="card">
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search farmers by name, region, or specialty..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input-field pl-10"
+              />
+            </div>
+
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filter === 'all' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All Farmers ({farmers.length})
+              </button>
+              <button
+                onClick={() => setFilter('verified')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filter === 'verified' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Verified Only
+              </button>
+              <button
+                onClick={() => setFilter('new')}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filter === 'new' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                New This Week
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Farmers Grid */}
@@ -126,8 +236,13 @@ export default function Farmers() {
               <div key={farmer.id} className="card hover:shadow-lg transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                      <Users className="w-6 h-6 text-primary-600" />
+                    <div className="relative">
+                      <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6 text-primary-600" />
+                      </div>
+                      {farmer.isOnline && (
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                      )}
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{farmer.name}</h3>
@@ -135,15 +250,25 @@ export default function Farmers() {
                         <MapPin className="w-3 h-3" />
                         <span>{farmer.region}</span>
                       </div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        Joined: {new Date(farmer.joinDate).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                   
-                  {farmer.verified && (
-                    <div className="flex items-center space-x-1 text-green-600">
-                      <Shield className="w-4 h-4" />
-                      <span className="text-xs font-medium">Verified</span>
-                    </div>
-                  )}
+                  <div className="flex flex-col items-end space-y-1">
+                    {farmer.verified && (
+                      <div className="flex items-center space-x-1 text-green-600">
+                        <Shield className="w-4 h-4" />
+                        <span className="text-xs font-medium">Verified</span>
+                      </div>
+                    )}
+                    {farmer.id === 'STS1D1ZNN1D0MKS62RCPMF5Z9RG9BREMC6MZ5R72' && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                        You
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -165,6 +290,13 @@ export default function Farmers() {
                     </div>
                   </div>
                   
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Wallet:</span>
+                    <span className="font-mono text-xs">
+                      {farmer.walletAddress.slice(0, 6)}...{farmer.walletAddress.slice(-4)}
+                    </span>
+                  </div>
+                  
                   <div>
                     <span className="text-xs text-gray-500">Specialties:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -180,12 +312,19 @@ export default function Farmers() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-100">
+                <div className="mt-4 pt-4 border-t border-gray-100 flex space-x-2">
                   <Link
                     href={`/farmers/${farmer.id}`}
-                    className="btn-outline w-full text-center"
+                    className="btn-outline flex-1 text-center"
                   >
                     View Profile
+                  </Link>
+                  <Link
+                    href={`https://explorer.hiro.so/address/${farmer.walletAddress}?chain=testnet`}
+                    target="_blank"
+                    className="btn-secondary flex-1 text-center"
+                  >
+                    View on Explorer
                   </Link>
                 </div>
               </div>

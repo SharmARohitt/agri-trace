@@ -4,6 +4,7 @@ import { useStacks } from '../../contexts/StacksContext'
 import { openContractCall } from '@stacks/connect'
 import { stringAsciiCV } from '@stacks/transactions'
 import { User, MapPin, FileText, AlertCircle } from 'lucide-react'
+import Link from 'next/link'
 
 export default function RegisterFarmer() {
   const { isSignedIn, stxAddress, network } = useStacks()
@@ -29,6 +30,30 @@ export default function RegisterFarmer() {
       return
     }
 
+    if (formData.name.trim().length > 100) {
+      setError('Name must be 100 characters or less')
+      return
+    }
+
+    if (formData.region.trim().length > 50) {
+      setError('Region must be 50 characters or less')
+      return
+    }
+
+    // Check if farmer is already registered
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/farmers/${stxAddress}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.farmer && data.farmer !== '(none)') {
+          setError('You are already registered as a farmer. Check the Farmers Directory to see your profile.')
+          return
+        }
+      }
+    } catch (error) {
+      console.log('Could not check existing registration, proceeding...')
+    }
+
     try {
       setLoading(true)
       setError('')
@@ -39,7 +64,7 @@ export default function RegisterFarmer() {
       ]
 
       const txOptions = {
-        contractAddress: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
+        contractAddress: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
         contractName: 'farmer-registry',
         functionName: 'register-farmer',
         functionArgs,
@@ -48,6 +73,12 @@ export default function RegisterFarmer() {
           console.log('Transaction submitted:', data.txId)
           setSuccess(`Registration submitted! Transaction ID: ${data.txId}`)
           setFormData({ name: '', region: '', description: '' })
+          setLoading(false)
+          
+          // Notify user about directory update
+          setTimeout(() => {
+            setSuccess(prev => prev + '\n\nYour profile will appear in the Farmers Directory once the transaction is confirmed on the blockchain (usually within 10-20 minutes).')
+          }, 2000)
         },
         onCancel: () => {
           console.log('Transaction cancelled')
@@ -58,7 +89,15 @@ export default function RegisterFarmer() {
       await openContractCall(txOptions)
     } catch (error) {
       console.error('Registration error:', error)
-      setError('Failed to register farmer. Please try again.')
+      
+      // Handle specific error cases
+      if (error.message && error.message.includes('u101')) {
+        setError('You are already registered as a farmer! You can skip this step and start creating product batches.')
+      } else if (error.message && error.message.includes('u103')) {
+        setError('Invalid name or region. Please ensure both fields are filled and not too long.')
+      } else {
+        setError('Failed to register farmer. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -173,10 +212,33 @@ export default function RegisterFarmer() {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-center space-x-2 text-red-700">
+              <div className={`border rounded-lg p-4 ${
+                error.includes('already registered') 
+                  ? 'bg-blue-50 border-blue-200' 
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                <div className={`flex items-center space-x-2 ${
+                  error.includes('already registered') 
+                    ? 'text-blue-700' 
+                    : 'text-red-700'
+                }`}>
                   <AlertCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">{error}</span>
+                  <div className="text-sm">
+                    <p className="font-medium">{error}</p>
+                    {error.includes('already registered') && (
+                      <div className="mt-3 flex space-x-3">
+                        <Link href="/products/create" className="btn-primary text-xs px-3 py-1">
+                          Create Product Batch
+                        </Link>
+                        <Link href="/dashboard" className="btn-secondary text-xs px-3 py-1">
+                          View Dashboard
+                        </Link>
+                        <Link href="/farmers" className="btn-outline text-xs px-3 py-1">
+                          View Farmers Directory
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

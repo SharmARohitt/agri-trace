@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useStacks } from '../contexts/StacksContext'
 import { Menu, X, User, LogOut, Wallet } from 'lucide-react'
+import NotificationSystem from './NotificationSystem'
 
 export default function Layout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -13,10 +14,12 @@ export default function Layout({ children }) {
     { name: 'Products', href: '/products' },
     { name: 'Marketplace', href: '/marketplace' },
     { name: 'Track', href: '/track' },
+    { name: 'Debug', href: '/debug-farmer' },
   ]
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <NotificationSystem />
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
